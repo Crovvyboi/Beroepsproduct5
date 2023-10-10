@@ -41,7 +41,7 @@ public class TtnApplicatieApplication {
 
 				JsonWriterSettings jsonSettings = JsonWriterSettings.builder().outputMode(JsonMode.RELAXED).build();
 				BsonArray bsonarray = new BsonArray();
-				collection.find().limit(10).forEach(doc -> bsonarray.add(doc.toBsonDocument()));
+				collection.find().limit(50).forEach(doc -> bsonarray.add(doc.toBsonDocument()));
 
 				return bsonarray;
 			} catch (MongoException e) {
