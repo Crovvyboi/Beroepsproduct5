@@ -35,7 +35,7 @@ public class HelloService {
                 String pH = String.valueOf(jsonObject.getJSONObject("Value").getJSONObject("sensor_readings").getDouble("pH"));
                 String dataID = String.valueOf(jsonObject.getJSONObject("Value").getString("_id"));
 
-                arrayString += " | " + dataID + " (Temperatuur: " + temp + ", pH-waarde: " + pH + ") | \n \n";
+                arrayString += " | " + dataID + " (Temperatuur: " + temp + ", pH-waarde: " + pH + ") | </br>";
             }
             return arrayString;
         }
