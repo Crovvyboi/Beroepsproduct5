@@ -41,7 +41,7 @@ public class HelloService {
                 String pH = String.valueOf(jsonObject.getJSONObject("Value").getJSONObject("sensor_readings").getDouble("pH"));
                 String dateString = jsonObject.getJSONObject("Value").getJSONObject("received_at").getString("$date");
                 // Date receivedAt = new Date(dateString.toString());
-
+                
                 arrayString += "<tr><td> " + dateString + " </td><td> " + temp + "</td><td> " + pH + " </td></tr>";
             }
 
