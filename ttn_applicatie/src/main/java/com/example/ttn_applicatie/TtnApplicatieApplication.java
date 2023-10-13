@@ -12,6 +12,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.json.JsonParser;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 
@@ -41,7 +43,7 @@ public class TtnApplicatieApplication {
 
 				JsonWriterSettings jsonSettings = JsonWriterSettings.builder().outputMode(JsonMode.RELAXED).build();
 				BsonArray bsonarray = new BsonArray();
-				collection.find().limit(50).forEach(doc -> bsonarray.add(doc.toBsonDocument()));
+				collection.find().limit(100).forEach(doc -> bsonarray.add(doc.toBsonDocument()));
 
 				return bsonarray;
 			} catch (MongoException e) {

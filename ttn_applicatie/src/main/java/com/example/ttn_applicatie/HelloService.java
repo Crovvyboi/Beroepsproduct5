@@ -1,5 +1,6 @@
 package com.example.ttn_applicatie;
 
+import org.bson.BsonDateTime;
 import org.json.*;
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -23,6 +25,10 @@ public class HelloService {
         if (array != null){
             String arrayString = "";
 
+            // begin construction on table
+            arrayString += "<table>";
+            arrayString += "<tr><td> Date/Time </td><td> Temperatuur </td><td> pH-waarde </td></tr>";
+
             // Make a json object from all bsonvalues
             for (BsonValue value:
                  array.getValues()) {
@@ -33,10 +39,14 @@ public class HelloService {
 
                 String temp = String.valueOf(jsonObject.getJSONObject("Value").getJSONObject("sensor_readings").getDouble("Temperatuur"));
                 String pH = String.valueOf(jsonObject.getJSONObject("Value").getJSONObject("sensor_readings").getDouble("pH"));
-                String dataID = String.valueOf(jsonObject.getJSONObject("Value").getString("_id"));
+                String dateString = jsonObject.getJSONObject("Value").getJSONObject("received_at").getString("$date");
+                // Date receivedAt = new Date(dateString.toString());
 
-                arrayString += " | " + dataID + " (Temperatuur: " + temp + ", pH-waarde: " + pH + ") | \n \n";
+                arrayString += "<tr><td> " + dateString + " </td><td> " + temp + "</td><td> " + pH + " </td></tr>";
             }
+
+            arrayString += "</table>";
+
             return arrayString;
         }
 
