@@ -52,7 +52,7 @@ public class SensorDataHandler {
                 BsonArray bsonarray = new BsonArray();
                 collection.find().forEach(doc -> bsonarray.add(doc.toBsonDocument()));
 
-                JSONArray json = JSonBuilder(bsonarray);
+                JSONArray json = JSONArrayBuilder(bsonarray);
 
                 if (json.length() < 1){
                     return ResponseEntity.notFound().build();
@@ -71,7 +71,7 @@ public class SensorDataHandler {
         }
     }
 
-    public JSONArray JSonBuilder(BsonArray bsonArray) throws JSONException {
+    public JSONArray JSONArrayBuilder(BsonArray bsonArray) throws JSONException {
         JSONArray jsonObject = new JSONArray();
 
         for (BsonValue value:
