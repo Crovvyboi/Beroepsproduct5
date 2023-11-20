@@ -47,8 +47,6 @@ public class SensorDataHandler {
                 MongoCollection<Document> collection = database.getCollection("SensorData");
                 System.out.println("Number of collections in db: " + collection.countDocuments());
 
-                JsonWriterSettings jsonSettings = JsonWriterSettings.builder().outputMode(JsonMode.RELAXED).build();
-
                 BsonArray bsonarray = new BsonArray();
                 collection.find().forEach(doc -> bsonarray.add(doc.toBsonDocument()));
 
@@ -76,9 +74,6 @@ public class SensorDataHandler {
 
         for (BsonValue value:
                 bsonArray.getValues()) {
-            BsonDocument doc = new BsonDocument();
-            doc.put("Value", value);
-
             JSONObject obj = new JSONObject(value.asDocument().toJson());
             jsonObject.put(obj);
         }
