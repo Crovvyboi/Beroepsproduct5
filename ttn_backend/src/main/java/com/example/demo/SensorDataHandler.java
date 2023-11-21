@@ -24,6 +24,7 @@ import java.time.ZonedDateTime;
 
 
 @RestController
+@RequestMapping("/api")
 public class SensorDataHandler {
     private String connectionString = "mongodb+srv://202324_AD:VdSPg3g77xFGSTmb@cluster0.hpcak9m.mongodb.net/?retryWrites=true&w=majority";
 
@@ -150,7 +151,7 @@ public class SensorDataHandler {
                     json = JSONArrayBuilderPH(bsonarray, phmax, phmin);
                 }
                 else if (phmax == null && phmin != null){
-                    json = JSONArrayBuilderPH(bsonarray, 10.0, phmin);
+                    json = JSONArrayBuilderPH(bsonarray, 14.0, phmin);
                 }
                 else if (phmax != null && phmin == null){
                     json = JSONArrayBuilderPH(bsonarray, phmax, 0.0);
