@@ -24,6 +24,7 @@ import java.time.ZonedDateTime;
 
 
 @RestController
+@RequestMapping("/api")
 public class SensorDataHandler {
     private String connectionString = "mongodb+srv://202324_AD:VdSPg3g77xFGSTmb@cluster0.hpcak9m.mongodb.net/?retryWrites=true&w=majority";
 
@@ -57,6 +58,51 @@ public class SensorDataHandler {
                 }
 
                 JSONArray json = JSONArrayBuilder(bsonarray);
+
+                if (json.length() < 1){
+                    return ResponseEntity.noContent().build();
+                }
+                else {
+                    JSONObject object = new JSONObject();
+                    object.put("Object", json);
+                    return ResponseEntity.ok(object.toString());
+                }
+            } catch (MongoException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
+    }
+
+    // Get outliers (entries that dont fall within guidelines)
+    @RequestMapping(
+            value="/outliers/",
+            method= RequestMethod.GET,
+            produces = "application/json")
+    public ResponseEntity<String> GetOutliers(){
+        ServerApi serverApi = ServerApi.builder()
+                .version(ServerApiVersion.V1)
+                .build();
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(connectionString))
+                .serverApi(serverApi)
+                .build();
+        // Create a new client and connect to the server
+        try (MongoClient mongoClient = MongoClients.create(settings)) {
+            try {
+                // Send a ping to confirm a successful connection
+                MongoDatabase database = mongoClient.getDatabase("202324_SensorProj");
+
+                MongoCollection<Document> collection = database.getCollection("SensorData");
+                System.out.println("Number of collections in db: " + collection.countDocuments());
+
+                BsonArray bsonarray = new BsonArray();
+                collection.find().forEach(doc -> bsonarray.add(doc.toBsonDocument()));
+
+
+                JSONArray json = JSONArrayBuilderOutliers(bsonarray);
 
                 if (json.length() < 1){
                     return ResponseEntity.noContent().build();
@@ -150,7 +196,7 @@ public class SensorDataHandler {
                     json = JSONArrayBuilderPH(bsonarray, phmax, phmin);
                 }
                 else if (phmax == null && phmin != null){
-                    json = JSONArrayBuilderPH(bsonarray, 10.0, phmin);
+                    json = JSONArrayBuilderPH(bsonarray, 14.0, phmin);
                 }
                 else if (phmax != null && phmin == null){
                     json = JSONArrayBuilderPH(bsonarray, phmax, 0.0);
@@ -304,6 +350,26 @@ public class SensorDataHandler {
                 if (temp < tempMax){
                     jsonObject.put(obj);
                 }
+            }
+        }
+
+        return jsonObject;
+    }
+
+    public JSONArray JSONArrayBuilderOutliers(BsonArray bsonArray) throws JSONException {
+        JSONArray jsonObject = new JSONArray();
+
+        for (BsonValue value:
+                bsonArray.getValues()) {
+            JSONObject obj = new JSONObject(value.asDocument().toJson());
+
+            Double pH = Double.valueOf(String.valueOf(obj.getJSONObject("sensor_readings").getDouble("pH")));
+            Double temp = Double.valueOf(String.valueOf(obj.getJSONObject("sensor_readings").getDouble("Temperatuur")));
+
+            if (pH < 6.0 || 9.0 > pH){
+                jsonObject.put(obj);
+            } else if (temp < 10.0 || 25.0 > temp) {
+                jsonObject.put(obj);
             }
         }
 
