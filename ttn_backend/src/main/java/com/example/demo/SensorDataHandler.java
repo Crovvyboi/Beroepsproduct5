@@ -278,6 +278,62 @@ public class SensorDataHandler {
         }
     }
 
+    @RequestMapping(
+            value="/o2range/",
+            method= RequestMethod.GET,
+            produces = "application/json")
+    public ResponseEntity<String> GetO2Range(@RequestParam(required = false) Double o2min, @RequestParam(required = false) Double o2max){
+        ServerApi serverApi = ServerApi.builder()
+                .version(ServerApiVersion.V1)
+                .build();
+        MongoClientSettings settings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(connectionString))
+                .serverApi(serverApi)
+                .build();
+        // Create a new client and connect to the server
+        try (MongoClient mongoClient = MongoClients.create(settings)) {
+            try {
+                // Send a ping to confirm a successful connection
+                MongoDatabase database = mongoClient.getDatabase("202324_SensorProj");
+
+                MongoCollection<Document> collection = database.getCollection("SensorData");
+                System.out.println("Number of collections in db: " + collection.countDocuments());
+
+                BsonArray bsonarray = new BsonArray();
+                collection.find().forEach(doc -> bsonarray.add(doc.toBsonDocument()));
+
+                JSONArray json;
+
+                if (o2max != null && o2min != null){
+                    json = JSONArrayO2Builder(bsonarray, o2max, o2min);
+                }
+                else if (o2max == null && o2min != null){
+                    json = JSONArrayO2Builder(bsonarray, null, o2min);
+                }
+                else if (o2max != null && o2min == null){
+                    json = JSONArrayO2Builder(bsonarray, o2max, null);
+                }
+                else {
+                    json = JSONArrayBuilder(bsonarray);
+                }
+
+                if (json.length() < 1){
+                    return ResponseEntity.noContent().build();
+                }
+                else {
+                    JSONObject object = new JSONObject();
+                    object.put("Object", json);
+                    return ResponseEntity.ok(object.toString());
+                }
+            } catch (MongoException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
+    }
+
     public JSONArray JSONArrayBuilder(BsonArray bsonArray) throws JSONException {
         JSONArray jsonObject = new JSONArray();
 
@@ -356,23 +412,34 @@ public class SensorDataHandler {
         return jsonObject;
     }
 
-    public JSONArray JSONArrayBuilderOutliers(BsonArray bsonArray) throws JSONException {
+    public JSONArray JSONArrayO2Builder(BsonArray bsonArray, Double o2max, Double o2min) throws JSONException {
+
         JSONArray jsonObject = new JSONArray();
 
         for (BsonValue value:
                 bsonArray.getValues()) {
             JSONObject obj = new JSONObject(value.asDocument().toJson());
 
-            Double pH = Double.valueOf(String.valueOf(obj.getJSONObject("sensor_readings").getDouble("pH")));
-            Double temp = Double.valueOf(String.valueOf(obj.getJSONObject("sensor_readings").getDouble("Temperatuur")));
+            Double o2 = Double.valueOf(String.valueOf(obj.getJSONObject("sensor_readings").getDouble("O2")));
 
-            if (pH < 6.0 || 9.0 > pH){
-                jsonObject.put(obj);
-            } else if (temp < 10.0 || 25.0 > temp) {
-                jsonObject.put(obj);
+            if (o2max != null && o2min != null){
+                if (o2min < o2 && o2 < o2max){
+                    jsonObject.put(obj);
+                }
+            }
+            else if (o2max == null && o2min != null){
+                if (o2min < o2){
+                    jsonObject.put(obj);
+                }
+            }
+            else if (o2max != null && o2min == null){
+                if (o2 < o2max){
+                    jsonObject.put(obj);
+                }
             }
         }
 
         return jsonObject;
     }
 }
+
