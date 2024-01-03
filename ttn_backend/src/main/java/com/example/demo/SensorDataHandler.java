@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 
+@CrossOrigin(origins ={"http://localhost:5173/"})
 @RestController
 @RequestMapping("/api")
 public class SensorDataHandler {
