@@ -3,7 +3,7 @@
         <div>
             <v-card flat title="Filters"
                         :width="1000">
-
+                To be implemented
             </v-card>
         </div>
         <div>
