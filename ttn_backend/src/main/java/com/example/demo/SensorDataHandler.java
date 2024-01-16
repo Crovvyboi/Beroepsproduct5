@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 
+@CrossOrigin(origins ={"http://localhost:5173/"})
 @RestController
 @RequestMapping("/api")
 public class SensorDataHandler {
@@ -81,7 +82,9 @@ public class SensorDataHandler {
             value="/outliers/",
             method= RequestMethod.GET,
             produces = "application/json")
-    public ResponseEntity<String> GetOutliers(){
+    public ResponseEntity<String> GetOutliers(@RequestParam(required = false) Double o2min, @RequestParam(required = false) Double o2max,
+                                              @RequestParam(required = false) Double tempmin, @RequestParam(required = false) Double tempmax,
+                                              @RequestParam(required = false) Double phmin, @RequestParam(required = false) Double phmax ){
         ServerApi serverApi = ServerApi.builder()
                 .version(ServerApiVersion.V1)
                 .build();
@@ -102,7 +105,7 @@ public class SensorDataHandler {
                 collection.find().forEach(doc -> bsonarray.add(doc.toBsonDocument()));
 
 
-                JSONArray json = JSONArrayBuilderOutliers(bsonarray);
+                JSONArray json = JSONArrayBuilderOutliers(bsonarray, o2max, o2min, tempmax, tempmin, phmax, phmin);
 
                 if (json.length() < 1){
                     return ResponseEntity.noContent().build();
@@ -196,10 +199,10 @@ public class SensorDataHandler {
                     json = JSONArrayBuilderPH(bsonarray, phmax, phmin);
                 }
                 else if (phmax == null && phmin != null){
-                    json = JSONArrayBuilderPH(bsonarray, 14.0, phmin);
+                    json = JSONArrayBuilderPH(bsonarray, null, phmin);
                 }
                 else if (phmax != null && phmin == null){
-                    json = JSONArrayBuilderPH(bsonarray, phmax, 0.0);
+                    json = JSONArrayBuilderPH(bsonarray, phmax, null);
                 }
                 else {
                     json = JSONArrayBuilder(bsonarray);
@@ -374,10 +377,22 @@ public class SensorDataHandler {
 
             Double pH = Double.valueOf(String.valueOf(obj.getJSONObject("sensor_readings").getDouble("pH")));
 
-            if (phMin < pH && pH < phMax){
-                jsonObject.put(obj);
-            }
 
+            if (phMax != null && phMin != null){
+                if (phMin < pH && pH < phMax){
+                    jsonObject.put(obj);
+                }
+            }
+            else if (phMax == null && phMin != null){
+                if (phMin < pH){
+                    jsonObject.put(obj);
+                }
+            }
+            else if (phMax != null && phMin == null){
+                if (pH < phMax){
+                    jsonObject.put(obj);
+                }
+            }
         }
 
         return jsonObject;
@@ -436,6 +451,79 @@ public class SensorDataHandler {
                 if (o2 < o2max){
                     jsonObject.put(obj);
                 }
+            }
+        }
+
+        return jsonObject;
+    }
+
+    public JSONArray JSONArrayBuilderOutliers(BsonArray bsonArray, Double o2max, Double o2min, Double tempMax, Double tempMin, Double phMax, Double phMin) throws JSONException {
+
+        JSONArray jsonObject = new JSONArray();
+
+        for (BsonValue value:
+                bsonArray.getValues()) {
+            JSONObject obj = new JSONObject(value.asDocument().toJson());
+
+            boolean addEntry = false;
+
+            Double o2 = Double.valueOf(String.valueOf(obj.getJSONObject("sensor_readings").getDouble("O2")));
+            Double pH = Double.valueOf(String.valueOf(obj.getJSONObject("sensor_readings").getDouble("pH")));
+            Double temp = Double.valueOf(String.valueOf(obj.getJSONObject("sensor_readings").getDouble("Temperatuur")));
+
+            // check temp range
+            if (tempMax != null && tempMin != null){
+                if (tempMin < temp && temp < tempMax){
+                    addEntry = true;
+                }
+            }
+            else if (tempMax == null && tempMin != null){
+                if (tempMin < temp){
+                    addEntry = true;
+                }
+            }
+            else if (tempMax != null && tempMin == null){
+                if (temp < tempMax){
+                    addEntry = true;
+                }
+            }
+
+            // check ph range
+            if (phMax != null && phMin != null){
+                if (phMin < pH && pH < phMax){
+                    addEntry = true;
+                }
+            }
+            else if (phMax == null && phMin != null){
+                if (phMin < pH){
+                    addEntry = true;
+                }
+            }
+            else if (phMax != null && phMin == null){
+                if (pH < phMax){
+                    addEntry = true;
+                }
+            }
+
+            // Check o2 range
+            if (o2max != null && o2min != null){
+                if (o2min > o2 && o2 > o2max){
+                    addEntry = true;
+                }
+            }
+            else if (o2max == null && o2min != null){
+                if (o2min > o2){
+                    addEntry = true;
+                }
+            }
+            else if (o2max != null && o2min == null){
+                if (o2 > o2max){
+                    addEntry = true;
+                }
+            }
+
+            if (addEntry){
+                jsonObject.put(obj);
             }
         }
 
