@@ -1,10 +1,13 @@
 <template>
-    <div  v-if="loaded">
+    <div  v-if="loaded" >
         <div>
-            <v-card flat title="Filters"
-                        :width="1000">
-                To be implemented
-            </v-card>
+            <VueDatePicker id="manual" :max-date="new Date()" v-model="date" 
+                    @date-update="onDateChange" 
+                    @closed="onTimePickerClose"
+                    @cleared="onTimePickerClose"
+                    :clearable="true"                 
+                    :width="1000"
+                    :height="500"/>
         </div>
         <div>
             <v-card flat title="Entries"
@@ -18,10 +21,25 @@
                         variant="outlined"
                         hide-details />
                 </template>
+                <template
+                    v-for="(header, i) in entryHeaders"
+                    v-slot:[`header.${header.key}`]="{ }"
+                >
+                    {{ header.title }}
+                    <div @click.stop :key="i">
+                    <v-text-field
+                        :key="i"
+                        
+                        class="pa"
+                        type="text"
+                        :placeholder="header.key"
+                    ></v-text-field>
+                    </div>
+                </template>
                 <v-data-table
                     id="entryTable"
                     v-model:page="page"
-                    
+                    :filters="filters"
                     :items="entries"
                     :search="search"
                     :items-per-page="itemsPerPage"
@@ -117,7 +135,7 @@
         Title,
         Tooltip,
         Legend,
-        annotationPlugin
+        annotationPlugin,
         
     )
 
@@ -140,7 +158,7 @@
                     o2max: 6.5
                 },
 
-                date: new Date(),
+                date: null,
 
                 loaded: false,
                 entryHeaders: [
@@ -162,7 +180,7 @@
                     {
                         title: 'Date',
                         align: 'start',
-                        key: 'date'
+                        key: 'date',
                     },
                     {
                         title: 'Time',
@@ -280,9 +298,23 @@
                 const o2Entries = []
                 const dateEntries = []
 
+                var connString = ""
+                if (this.date != null) {
+                    var day = this.date.getDate()
+                    var month = this.date.getMonth() + 1
+                    var year = this.date.getFullYear()
+
+                    console.log(day + " " + month  + " " + year)
+
+                    connString = "http://localhost:8080/api/bydate/?day="+day+"&month="+month+"&year="+year+""
+                }
+                else{
+                    connString = "http://localhost:8080/api/"
+                }
+
                 // Get data from api and put into arrays
                 try{
-                    await axios.get("http://localhost:8080/api/")
+                    await axios.get(connString)
                         .then(response => {
                             console.log(response)
 
