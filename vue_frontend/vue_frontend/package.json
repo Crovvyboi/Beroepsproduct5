@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@auth0/auth0-vue": "^2.3.3",
+    "@mdi/font": "^7.4.47",
     "@vuepic/vue-datepicker": "^7.4.0",
     "axios": "^1.6.3",
     "chart.js": "^4.4.1",

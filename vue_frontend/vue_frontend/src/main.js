@@ -1,19 +1,23 @@
-import './assets/main.css'
+// main.js
+import { createApp } from 'vue';
+import App from './App.vue';
+import router from './router';  // Importeer de router
 
-import { createApp } from 'vue'
-import App from './App.vue'
-
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
+import 'vuetify/styles';
+import { createVuetify } from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
+import '@mdi/font/css/materialdesignicons.css';
 import { createAuth0 } from '@auth0/auth0-vue';
 import { firebaseApp } from './firebase';
 
-// const vuetify = createVuetify({
-//   components,
-//   directives,
-// })
+const vuetify = createVuetify({
+  components,
+  directives,
+  icons: {
+    defaultSet: 'mdi',
+  }
+});
 
 const app = createApp(App);
 app.use(
@@ -25,14 +29,11 @@ app.use(
     }
   })
 );
-
 app.use(
   createVuetify({
     components,
     directives,
   })
 );
-
-
+app.use(router);  // Voeg de router toe aan de app
 app.mount('#app');
-// createApp(App).use(vuetify).mount('#app')

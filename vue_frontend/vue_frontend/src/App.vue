@@ -1,52 +1,55 @@
+<!-- App.vue -->
 <template>
-  <main>
-    <login />
-    <profile />
-    <adduser/>
-    <pre v-if="isAuthenticated">
-    <v-card>
-      <v-tabs v-model="tab" bg-color="primary">
-        <v-tab value="one">Daily Raport</v-tab>
-        <v-tab value="two">Entries</v-tab>
-      </v-tabs>
-      <v-card-text>
-        <v-window v-model="tab">
-          <v-window-item value="one">
-            <DailyRapport />
-          </v-window-item>
-          <v-window-item value="two">
-            <EntriesPage />
-          </v-window-item>
-        </v-window>
-      </v-card-text>
-    </v-card>
-  </pre>
-  </main>
+  <v-app id="inspire">
+    <v-navigation-drawer v-model="drawer" class="bg-blue">
+      <v-list-item title="Menu" subtitle="Informatica AD"></v-list-item>
+      <v-divider></v-divider>
+      <router-link to="/home" class="router-link">
+        <v-list-item link title="Home"></v-list-item>
+      </router-link> 
+      <router-link to="/actuele-data" class="router-link">
+        <v-list-item link title="Actuele Data"></v-list-item>
+      </router-link>
+      <router-link to="/historie" class="router-link">
+        <v-list-item link title="Historie"></v-list-item>
+      </router-link>
+               
+    </v-navigation-drawer>
+
+    <v-app-bar class="bg-blue-lighten-1">
+      <v-app-bar-nav-icon @click="drawer = !drawer">
+        <v-icon icon="mdi-menu" size="large"></v-icon>
+      </v-app-bar-nav-icon>
+
+      <v-app-bar-title>Aquathermie</v-app-bar-title>
+    </v-app-bar>
+
+    <v-main class="bg-red-lighten-5">
+      <router-view></router-view>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import DailyRapport from './components/DailyRapport.vue';
-import EntriesPage from './components/EntriesPage.vue';
-import Login from './components/Login.vue';
-import adduser from './components/addUser.vue';
-// import Logout from './components/Logout.vue';
-import Profile from './components/Profile.vue';
-import { useAuth0 } from '@auth0/auth0-vue';
+import { ref } from 'vue';
+
+const drawer = ref(null);
 
 export default {
   name: 'App',
-  components: { DailyRapport, EntriesPage, Login, Profile, adduser },
-  data: () => ({
-    tab: null,
-  }),
-  setup() {
-    const { isAuthenticated, user } = useAuth0();
-
+  data() {
     return {
-      user,
-      isAuthenticated,
+      drawer: null
     };
   }
-}
-</script> 
+};
+</script>
 
+<style scoped>
+/* Voeg aangepaste stijlen toe voor router-links */
+.router-link  {
+  text-decoration: none !important;
+  color: white !important;
+  font-weight: bold !important;
+}
+</style>

@@ -1,7 +1,7 @@
 <template>
-    <div  v-if="loaded" >
+    <div  v-if="loaded"     >
         <div>
-            <VueDatePicker id="manual" :max-date="new Date()" v-model="date" 
+            <VueDatePicker id="manual" :transitions="false" :max-date="new Date()" v-model="date" 
                     @date-update="onDateChange" 
                     @closed="onTimePickerClose"
                     @cleared="onTimePickerClose"
