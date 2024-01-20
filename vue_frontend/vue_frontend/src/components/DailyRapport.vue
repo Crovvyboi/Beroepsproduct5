@@ -1,16 +1,20 @@
-<template >
-    <div v-if="loaded" >
+<template>
+    <div v-if="loaded" style="margin-top: 325px;">
         <!-- Date Picker -->
         <div>
-            <VueDatePicker id="manual" :max-date="new Date()" v-model="date" 
+            <VueDatePicker id="manual" :transitions="false" :max-date="new Date()" v-model="date" 
                 @date-update="onDateChange" 
                 @closed="onTimePickerClose"                 
                 :width="1000"
                 :height="500"/>
         </div>
+        <div>
+
+        </div>
         <!-- Statistic Tables -->
         <div>
-            <v-card flat title="Statistics">
+            <v-card flat title="Statistics"
+            :width="1000">
                 <div>
                     <v-data-table
                         id="entryStatTable"    
