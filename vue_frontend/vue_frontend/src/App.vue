@@ -3,7 +3,7 @@
     <login />
     <profile />
     <adduser/>
-    <!-- <pre v-if="isAuthenticated">
+    <pre v-if="isAuthenticated">
     <v-card>
       <v-tabs v-model="tab" bg-color="primary">
         <v-tab value="one">Daily Raport</v-tab>
@@ -20,7 +20,7 @@
         </v-window>
       </v-card-text>
     </v-card>
-  </pre> -->
+  </pre>
   </main>
 </template>
 

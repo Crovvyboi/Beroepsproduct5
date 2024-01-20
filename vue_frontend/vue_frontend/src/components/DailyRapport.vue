@@ -125,12 +125,6 @@
                 </v-data-table>
             </v-card>
         </div> 
-        <!-- Predictions -->
-        <div>
-            <v-card flat title="Predictions">
-                To be Implemented
-            </v-card>
-        </div>
     </div>
    
 </template>
